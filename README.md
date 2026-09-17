@@ -10,7 +10,7 @@ An enterprise-grade clinical command center developed in **Power BI** to monitor
 
 ## Executive Preview
 
-![Clinical Operations & Patient Flow Command Center](docs/Healthcare-1.jpg)
+![Clinical Operations & Patient Flow Command Center](Docs/Healthcare-1.jpg)
 
 ---
 
