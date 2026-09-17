@@ -10,7 +10,7 @@ An enterprise-grade clinical command center developed in **Power BI** to monitor
 
 ## Executive Preview
 
-![Clinical Operations & Patient Flow Command Center](./docs/Healthcare-1.jpg)
+![Clinical Operations & Patient Flow Command Center](docs/Healthcare-1.jpg)
 
 ---
 
@@ -39,7 +39,7 @@ This dashboard bridges **macro strategic monitoring** for C-suite executives wit
    * **Longitudinal Census Velocity (Area Chart):** Identifies monthly census seasonality (2019–2024) to guide clinical staffing allocations.
 
 3. **Bed Gridlock & Extended Stay Watchlist (>20 Days) (Bottom Table):**
-   * An exception-filtering triage queue that isolates patients remaining past target discharge thresholds (≥ 20 days).
+   * An exception-filtering triage queue that isolates patients remaining past target discharge thresholds (>= 20 days).
    * Features dynamic in-cell **alert data bars** on length of stay and color-coded acuity typography mapped directly to intake channels.
 
 ---
@@ -50,3 +50,85 @@ This dashboard bridges **macro strategic monitoring** for C-suite executives wit
 ```dax
 Total Admissions = 
 COUNTROWS('healthcare_dataset')
+```
+
+### 2. Total Billed Revenue (Absolute Volume)
+```dax
+Total Billed Revenue = 
+SUMX(
+    'healthcare_dataset',
+    ABS('healthcare_dataset'[Billing Amount])
+)
+```
+
+### 3. Average Length of Stay (ALOS in Days)
+```dax
+Avg Length of Stay = 
+AVERAGE('healthcare_dataset'[Length of Stay (Days)])
+```
+
+### 4. Abnormal Lab Rate (%)
+```dax
+Abnormal Test Rate % = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS('healthcare_dataset'),
+        'healthcare_dataset'[Test Results] = "Abnormal"
+    ),
+    [Total Admissions],
+    0
+)
+```
+
+### 5. Emergency Intake Velocity (%)
+```dax
+Emergency Intake Rate % = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS('healthcare_dataset'),
+        'healthcare_dataset'[Admission Type] = "Emergency"
+    ),
+    [Total Admissions],
+    0
+)
+```
+
+---
+
+## UI / UX Design Specifications
+
+* **Design Philosophy:** Clinical Modern Light Architecture (modeled after modern hospital EHR systems like Epic Systems and Cerner).
+* **Canvas Background:** Soft Clinical Slate (`#F1F5F9`) at 0% transparency.
+* **Card & Container Surfaces:** Pure Crisp White (`#FFFFFF`) with 1px border strokes (`#E2E8F0`) and 8px curved radii.
+* **Typography:** Segoe UI — High contrast Slate Charcoal (`#0F172A`) for primary metrics, Muted Cool Slate (`#64748B`) for categorical subtitles.
+* **Acuity Color Alignment:**
+  * **Emergency:** Alert Crimson (`#DC2626`)
+  * **Urgent:** Clinical Amber (`#F59E0B`)
+  * **Elective:** Medical Royal Blue (`#2563EB`)
+
+---
+
+## Repository Structure
+
+```text
+├── data/
+│   └── healthcare_dataset.xlsx
+├── docs/
+│   ├── healthcare-1.jpg
+│   └── Clinical_Operations_Dashboard.pdf
+├── pbi/
+│   └── Clinical_Operations_Command_Center.pbix
+└── README.md
+```
+
+---
+
+## How to Run the Report
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/<your-username>/<repo-name>.git
+   ```
+2. Navigate to the `pbi/` directory.
+3. Open `Clinical_Operations_Command_Center.pbix` using **Power BI Desktop**.
+4. If the data source path needs updating, open **Transform Data -> Data Source Settings** and re-point the Excel source to `data/healthcare_dataset.xlsx`.
