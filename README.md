@@ -1,134 +1,49 @@
-# Clinical Operations & Patient Flow Command Center
+# 🏥 Inpatient Operations & Clinical Capacity Command Center (Power BI)
 
 [![Power BI](https://img.shields.io/badge/Power_BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)](https://powerbi.microsoft.com/)
 [![DAX](https://img.shields.io/badge/DAX-Data_Analysis_Expressions-blue?style=for-the-badge)](https://learn.microsoft.com/en-us/dax/)
-[![Healthcare Analytics](https://img.shields.io/badge/Domain-Healthcare_Operations-059669?style=for-the-badge)](#)
-
-An enterprise-grade clinical command center developed in **Power BI** to monitor inpatient census telemetry, mitigate bed gridlock, evaluate admission triage velocity, and analyze $1.42B in cumulative gross inpatient expenditures across 55,000+ hospital admissions.
-
----
-
-## Executive Preview
-
-![Clinical Operations & Patient Flow Command Center](Docs/Healthcare-1.jpg)
+[![Data Modeling](https://img.shields.io/badge/Data_Modeling-Star_Schema-green?style=for-the-badge)]()
+[![Documentation](https://img.shields.io/badge/Documentation-PDF-red?style=for-the-badge)](Docs/Hospital_Operations_Capacity.pdf)
 
 ---
 
-## The Operational Problem
+## 📌 Executive Summary
+Hospital administrative workflows require continuous operational telemetry to balance inpatient bed utilization against clinical care delivery and expenditure containment. 
 
-Hospital systems face ongoing capacity constraints:
-* **Bed Gridlock:** Extended length of stay (LOS) ties up critical inpatient beds, delaying emergency department admissions and elective surgical intakes.
-* **Triage Misalignment:** Unmonitored spikes in urgent or emergency arrivals risk overwhelming on-duty clinical staff and violating nurse-to-patient staffing ratios.
-* **Financial Risk Allocation:** With multi-million dollar disease portfolios (Diabetes, Obesity, Arthritis, Cancer), health executives lack instant visibility into which diagnosis cohorts drive the bulk of inpatient billing.
+This **Inpatient Operations & Capacity Command Center** is an interactive Power BI analytics suite engineered to analyze **55,000+ patient admissions**, departmental length of stay (ALOS), prolonged bed occupancy (>20 days), triage acuity classifications, and **$1.42B in clinical billing expenditures**.
 
----
-
-## The Solution: Architectural Overview
-
-This dashboard bridges **macro strategic monitoring** for C-suite executives with **micro tactical interventions** for ward operations leads:
-
-1. **Executive Telemetry (Top Row KPIs):**
-   * **Total Admissions:** Instant census volume across selected temporal windows.
-   * **Total Billed Volume:** Cumulative inpatient financial exposure ($1.42B baseline).
-   * **Average Length of Stay (ALOS):** Baseline clinical occupancy benchmark (15.5 days).
-   * **Abnormal Lab Rate & Emergency Share:** Risk indices tracking diagnostic volatility (33.6%) and acute intake pressure (32.9%).
-
-2. **Triage & Financial Program Dynamics (Middle Row):**
-   * **Admissions by Intake Acuity (Pie Chart):** Visualizes the balanced split between Elective (33.6%), Urgent (33.5%), and Emergency (32.9%) intakes to regulate scheduled admissions against emergency surges.
-   * **Gross Treatment Expenditure (Bar Chart):** Ranks clinical service lines by financial footprint (Diabetes leading at $238.5M).
-   * **Longitudinal Census Velocity (Area Chart):** Identifies monthly census seasonality (2019–2024) to guide clinical staffing allocations.
-
-3. **Bed Gridlock & Extended Stay Watchlist (>20 Days) (Bottom Table):**
-   * An exception-filtering triage queue that isolates patients remaining past target discharge thresholds (>= 20 days).
-   * Features dynamic in-cell **alert data bars** on length of stay and color-coded acuity typography mapped directly to intake channels.
+The report bridges clinical oversight with hospital financial intelligence, providing administrators with the tools to diagnose ward bottlenecks and optimize patient throughput.
 
 ---
 
-## Core DAX Formulations
+## 📸 Dashboard Overview (Executive Summary View)
+![Hospital Operations Dashboard Overview](Docs/Hospital_Operations_Capacity-1.png)
 
-### 1. Total Admissions
+> 📄 **Technical Report:** Detailed clinical definitions, KPI formulas, and data architecture are documented in [`Docs/Hospital_Operations_Capacity.pdf`](Docs/Hospital_Operations_Capacity.pdf).
+
+---
+
+## 🎯 Key Operational & Financial Metrics
+* **Total Encounters Analyzed:** 55,000+ patient admissions across inpatient hospital units.
+* **Expenditure Monitored:** $1.42B in aggregated clinical billing charges.
+* **Average Length of Stay (ALOS):** Tracked across admission categories (Emergency, Urgent, Elective).
+* **Extended-Stay Bottlenecks:** Isolated inpatient encounters exceeding 20 days to mitigate bed blockages.
+* **Triage & Acuity Distribution:** Monitored case acuity to evaluate clinical workload across shifts.
+
+---
+
+## 🛠️ Data Architecture & DAX Formulations
+
+### 1. Data Model Structure
+* **Fact:** Inpatient admission records tracking billing charges, triage acuity levels, admission/discharge timestamps, and room allocations.
+* **Dimensions:** Standardized dimension tables for Patient Demographics, Clinical Specialties, Admission Types, and Date Hierarchies.
+
+### 2. Core DAX Calculations
+
+#### Average Length of Stay (ALOS):
 ```dax
-Total Admissions = 
-COUNTROWS('healthcare_dataset')
-```
-
-### 2. Total Billed Revenue (Absolute Volume)
-```dax
-Total Billed Revenue = 
-SUMX(
-    'healthcare_dataset',
-    ABS('healthcare_dataset'[Billing Amount])
+ALOS = 
+AVERAGEX(
+    KEEPFILTERS(VALUES('Fact_Admissions'[Admission_ID])),
+    CALCULATE(AVERAGE('Fact_Admissions'[LengthOfStay_Days]))
 )
-```
-
-### 3. Average Length of Stay (ALOS in Days)
-```dax
-Avg Length of Stay = 
-AVERAGE('healthcare_dataset'[Length of Stay (Days)])
-```
-
-### 4. Abnormal Lab Rate (%)
-```dax
-Abnormal Test Rate % = 
-DIVIDE(
-    CALCULATE(
-        COUNTROWS('healthcare_dataset'),
-        'healthcare_dataset'[Test Results] = "Abnormal"
-    ),
-    [Total Admissions],
-    0
-)
-```
-
-### 5. Emergency Intake Velocity (%)
-```dax
-Emergency Intake Rate % = 
-DIVIDE(
-    CALCULATE(
-        COUNTROWS('healthcare_dataset'),
-        'healthcare_dataset'[Admission Type] = "Emergency"
-    ),
-    [Total Admissions],
-    0
-)
-```
-
----
-
-## UI / UX Design Specifications
-
-* **Design Philosophy:** Clinical Modern Light Architecture (modeled after modern hospital EHR systems like Epic Systems and Cerner).
-* **Canvas Background:** Soft Clinical Slate (`#F1F5F9`) at 0% transparency.
-* **Card & Container Surfaces:** Pure Crisp White (`#FFFFFF`) with 1px border strokes (`#E2E8F0`) and 8px curved radii.
-* **Typography:** Segoe UI — High contrast Slate Charcoal (`#0F172A`) for primary metrics, Muted Cool Slate (`#64748B`) for categorical subtitles.
-* **Acuity Color Alignment:**
-  * **Emergency:** Alert Crimson (`#DC2626`)
-  * **Urgent:** Clinical Amber (`#F59E0B`)
-  * **Elective:** Medical Royal Blue (`#2563EB`)
-
----
-
-## Repository Structure
-
-```text
-├── data/
-│   └── healthcare_dataset.xlsx
-├── docs/
-│   ├── healthcare-1.jpg
-│   └── Clinical_Operations_Dashboard.pdf
-├── pbi/
-│   └── Clinical_Operations_Command_Center.pbix
-└── README.md
-```
-
----
-
-## How to Run the Report
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/<your-username>/<repo-name>.git
-   ```
-2. Navigate to the `pbi/` directory.
-3. Open `Clinical_Operations_Command_Center.pbix` using **Power BI Desktop**.
-4. If the data source path needs updating, open **Transform Data -> Data Source Settings** and re-point the Excel source to `data/healthcare_dataset.xlsx`.
