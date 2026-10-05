@@ -40,10 +40,32 @@ The report bridges clinical oversight with hospital financial intelligence, prov
 
 ### 2. Core DAX Calculations
 
-#### Average Length of Stay (ALOS):
-```dax
-ALOS = 
-AVERAGEX(
-    KEEPFILTERS(VALUES('Fact_Admissions'[Admission_ID])),
-    CALCULATE(AVERAGE('Fact_Admissions'[LengthOfStay_Days]))
-)
+* **Average Length of Stay (ALOS):**
+  `ALOS = AVERAGEX(KEEPFILTERS(VALUES('Fact_Admissions'[Admission_ID])), CALCULATE(AVERAGE('Fact_Admissions'[LengthOfStay_Days])))`
+
+* **Prolonged Bed Occupancy (>20 Days Gridlock):**
+  `Prolonged_Stay_Count = CALCULATE(DISTINCTCOUNT('Fact_Admissions'[Patient_ID]), 'Fact_Admissions'[LengthOfStay_Days] > 20)`
+
+* **Total Monitored Clinical Expenditure:**
+  `Total_Clinical_Expenditure = SUM('Fact_Admissions'[Billing_Amount])`
+
+---
+
+## 🚀 Operational Insights & Takeaways
+1. **Bed Turnover Management:** Pinpointed discharge bottlenecks where delayed administrative clearance prolonged bed gridlock.
+2. **Cost Containment:** Isolated outlier extended-stay cohorts driving high-tier expenditures, enabling targeted review workflows.
+3. **Staffing & Capacity Alignment:** Identified emergency admission surges by weekday to support evidence-based staffing allocations.
+
+---
+
+## 📁 Repository Structure
+```text
+├── Data/
+│   └── healthcare_dataset.xlsx
+├── Docs/
+│   ├── Hospital_Operations_Capacity-1.png
+│   └── Hospital_Operations_Capacity.pdf
+├── pbi/
+│   ├── Healthcare.pbix
+│   └── Hospital_Operations_Capacity.pbix
+└── README.md
